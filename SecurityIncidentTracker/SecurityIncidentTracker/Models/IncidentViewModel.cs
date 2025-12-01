@@ -13,9 +13,6 @@ namespace SecurityIncidentTracker.Models
         // The title or brief description of what happened
         public string Title { get; set; } = "";
 
-        // A longer description explaining what happened.
-        public string Description { get; set; } = "";
-
         // How serious the incident is: Critical, High, Medium, or Low
         public string Severity { get; set; } = "";
 
@@ -40,12 +37,6 @@ namespace SecurityIncidentTracker.Models
         // How many hours have passed since the incident was detected
         // (we calculate this in the query, not stored in database)
         public int HoursSinceDetection { get; set; }
-
-        // Used by the default Error view; safe to leave as-is.
-        public string? RequestId { get; set; }
-
-        // Convenience property: true if RequestId has a value.
-        public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
     }
 
     // This class holds summary statistics about all incidents for the dashboard
