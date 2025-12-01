@@ -1,7 +1,12 @@
+using SecurityIncidentTracker.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Add this line before the var app = builder.Build(); line
+builder.Services.AddScoped<IncidentService>();
 
 var app = builder.Build();
 
