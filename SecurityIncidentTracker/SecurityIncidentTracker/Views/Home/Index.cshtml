@@ -1,8 +1,180 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@* 
+    This is the main dashboard page.
+    It shows:
+    1. Summary metrics (counts by severity and status)
+    2. A table of all active incidents
+    
+    @model tells Razor what type of data this view receives from the controller.
+    In our case, it's a list of IncidentViewModel objects.
+*@
+
+@using SecurityIncidentTracker.Models
+@model List<IncidentViewModel>
+
+@{
+    // This sets the page title shown in the browser tab.
+    ViewData["Title"] = "Security Incident Dashboard";
+
+    // Get the metrics we stored in ViewBag from the controller.
+    // We cast it to DashboardMetrics so we can access its properties.
+    var metrics = ViewBag.Metrics as DashboardMetrics;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container-fluid">
+
+    @* Page Header *@
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-5">
+                <i class="bi bi-shield-exclamation"></i> Security Incident Dashboard
+            </h1>
+            <p class="text-muted">Real-time view of active security incidents</p>
+        </div>
+    </div>
+
+    @* Metrics Cards Row - Shows summary statistics at a glance *@
+    @if (metrics != null)
+    {
+        <div class="row mb-4">
+            @* Total Active Incidents Card *@
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card bg-primary text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Total Active</h6>
+                        <h2 class="card-text">@metrics.TotalActive</h2>
+                    </div>
+                </div>
+            </div>
+
+            @* Critical Incidents Card - Red to show urgency *@
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card bg-danger text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Critical</h6>
+                        <h2 class="card-text">@metrics.CriticalCount</h2>
+                    </div>
+                </div>
+            </div>
+
+            @* High Severity Card - Orange/warning color *@
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card bg-warning text-dark h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">High</h6>
+                        <h2 class="card-text">@metrics.HighCount</h2>
+                    </div>
+                </div>
+            </div>
+
+            @* New (Untouched) Incidents Card *@
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card bg-info text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">New (Unassigned)</h6>
+                        <h2 class="card-text">@metrics.NewCount</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @* Incidents Table Section *@
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Active Incidents</h5>
+                </div>
+                <div class="card-body p-0">
+                    @* Check if there are any incidents to display *@
+                    @if (Model != null && Model.Count > 0)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Title</th>
+                                        <th>Severity</th>
+                                        <th>Status</th>
+                                        <th>Type</th>
+                                        <th>Assigned To</th>
+                                        <th>Detected</th>
+                                        <th>Age (Hours)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @* Loop through each incident and create a table row *@
+                                    @foreach (var incident in Model)
+                                    {
+                                        <tr>
+                                            <td>@incident.IncidentID</td>
+                                            <td>@incident.Title</td>
+
+                                            @* Color-code the severity badge based on level *@
+                                            <td>
+                                                @{
+                                                    // Choose a Bootstrap badge color based on severity
+                                                    var severityClass = incident.Severity switch
+                                                    {
+                                                        "Critical" => "bg-danger",
+                                                        "High" => "bg-warning text-dark",
+                                                        "Medium" => "bg-info",
+                                                        "Low" => "bg-secondary",
+                                                        _ => "bg-secondary"
+                                                    };
+                                                }
+                                                <span class="badge @severityClass">@incident.Severity</span>
+                                            </td>
+
+                                            @* Color-code the status badge *@
+                                            <td>
+                                                @{
+                                                    var statusClass = incident.Status switch
+                                                    {
+                                                        "New" => "bg-primary",
+                                                        "In Progress" => "bg-warning text-dark",
+                                                        "Resolved" => "bg-success",
+                                                        "Closed" => "bg-secondary",
+                                                        _ => "bg-secondary"
+                                                    };
+                                                }
+                                                <span class="badge @statusClass">@incident.Status</span>
+                                            </td>
+
+                                            <td>@incident.IncidentType</td>
+                                            <td>@incident.AssignedResponder</td>
+
+                                            @* Format the date to be readable *@
+                                            <td>@incident.DetectedDate.ToString("MMM dd, yyyy HH:mm")</td>
+
+                                            @* Show hours since detection - highlight if old *@
+                                            <td>
+                                                @if (incident.HoursSinceDetection > 24)
+                                                {
+                                                    <span class="text-danger fw-bold">@incident.HoursSinceDetection hrs</span>
+                                                }
+                                                else
+                                                {
+                                                    <span>@incident.HoursSinceDetection hrs</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        @* Show this message if no incidents exist *@
+                        <div class="p-4 text-center text-muted">
+                            <p class="mb-0">No active incidents found. The system is all clear!</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>

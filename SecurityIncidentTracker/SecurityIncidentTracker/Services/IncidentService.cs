@@ -127,7 +127,7 @@ namespace SecurityIncidentTracker.Services
                     metrics.LowCount = reader.GetInt32(4);
                     metrics.NewCount = reader.GetInt32(5);
                     metrics.InProgressCount = reader.GetInt32(6);
-                    metrics.AvgResponseTimeMinutes = reader.IsDBNull(7) ? 0 : reader.GetDouble(7);
+                    metrics.AvgResponseTimeMinutes = reader.IsDBNull(7) ? 0 : Convert.ToDouble(reader.GetInt32(7));
                 }
             }
 
