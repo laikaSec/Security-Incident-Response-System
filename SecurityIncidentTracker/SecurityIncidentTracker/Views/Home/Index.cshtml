@@ -36,9 +36,9 @@
     @if (metrics != null)
     {
         <div class="row mb-4">
-            @* Total Active Incidents Card *@
+            @* Total Active - overall count, neutral/dark *@
             <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card bg-primary text-white h-100">
+                <div class="card bg-dark text-white h-100">
                     <div class="card-body">
                         <h6 class="card-title">Total Active</h6>
                         <h2 class="card-text">@metrics.TotalActive</h2>
@@ -46,7 +46,7 @@
                 </div>
             </div>
 
-            @* Critical Incidents Card - Red to show urgency *@
+            @* Critical - red to show urgency *@
             <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card bg-danger text-white h-100">
                     <div class="card-body">
@@ -56,7 +56,7 @@
                 </div>
             </div>
 
-            @* High Severity Card - Orange/warning color *@
+            @* High - Orange/yellow warning color *@
             <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card bg-warning text-dark h-100">
                     <div class="card-body">
@@ -66,12 +66,12 @@
                 </div>
             </div>
 
-            @* New (Untouched) Incidents Card *@
+            @* New (Unassigned) – incidents that are New AND have no owner yet *@
             <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card bg-info text-white h-100">
+                <div class="card bg-success text-white h-100">
                     <div class="card-body">
                         <h6 class="card-title">New (Unassigned)</h6>
-                        <h2 class="card-text">@metrics.NewCount</h2>
+                        <h2 class="card-text">@metrics.NewUnassignedCount</h2>
                     </div>
                 </div>
             </div>
@@ -119,7 +119,7 @@
                                                     {
                                                         "Critical" => "bg-danger",
                                                         "High" => "bg-warning text-dark",
-                                                        "Medium" => "bg-info",
+                                                        "Medium" => "bg-primary",
                                                         "Low" => "bg-secondary",
                                                         _ => "bg-secondary"
                                                     };
@@ -132,9 +132,9 @@
                                                 @{
                                                     var statusClass = incident.Status switch
                                                     {
-                                                        "New" => "bg-primary",
-                                                        "In Progress" => "bg-warning text-dark",
-                                                        "Resolved" => "bg-success",
+                                                        "New" => "bg-success",
+                                                        "In Progress" => "bg-info text-white",
+                                                        "Resolved" => "bg-light text-dark",
                                                         "Closed" => "bg-secondary",
                                                         _ => "bg-secondary"
                                                     };
