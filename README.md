@@ -18,7 +18,7 @@ User → Browser Request → Controller → Service → Database → SQL Query �
 
 - [x] Database schema and seed data
 - [x] View models and service layer
-- [ ] Dashboard controller and view
+- [x] Dashboard controller and view
 - [ ] Create incident functionality
 - [ ] Real-time updates with SignalR
 - [ ] AI analysis (future phase)
