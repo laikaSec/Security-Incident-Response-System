@@ -73,6 +73,9 @@ namespace SecurityIncidentTracker.Models
         // Count of incidents currently being worked on
         public int InProgressCount { get; set; }
 
+        // Count of incidents that are New AND have nobody assigned yet
+        public int NewUnassignedCount { get; set; }
+
         // Average time in minutes it takes to respond to an incident
         public double AvgResponseTimeMinutes { get; set; }
     }

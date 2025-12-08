@@ -109,6 +109,7 @@ namespace SecurityIncidentTracker.Services
                         SUM(CASE WHEN Severity = 'Low' THEN 1 ELSE 0 END) AS LowCount,
                         SUM(CASE WHEN Status = 'New' THEN 1 ELSE 0 END) AS NewCount,
                         SUM(CASE WHEN Status = 'In Progress' THEN 1 ELSE 0 END) AS InProgressCount,
+                        SUM(CASE WHEN Status = 'New' AND AssignedTo IS NULL THEN 1 ELSE 0 END) AS NewUnassignedCount,
                         AVG(DATEDIFF(MINUTE, DetectedDate, 
                             CASE WHEN Status IN ('Resolved', 'Closed') THEN ResolvedDate ELSE GETDATE() END)) AS AvgResponseTimeMinutes
                     FROM Incidents
@@ -127,7 +128,8 @@ namespace SecurityIncidentTracker.Services
                     metrics.LowCount = reader.GetInt32(4);
                     metrics.NewCount = reader.GetInt32(5);
                     metrics.InProgressCount = reader.GetInt32(6);
-                    metrics.AvgResponseTimeMinutes = reader.IsDBNull(7) ? 0 : Convert.ToDouble(reader.GetInt32(7));
+                    metrics.NewUnassignedCount = reader.GetInt32(7);
+                    metrics.AvgResponseTimeMinutes = reader.IsDBNull(8) ? 0 : Convert.ToDouble(reader.GetInt32(8));
                 }
             }
 
