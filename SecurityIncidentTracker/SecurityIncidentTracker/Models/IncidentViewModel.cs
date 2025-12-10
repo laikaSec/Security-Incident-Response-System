@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace SecurityIncidentTracker.Models
 {
@@ -110,6 +111,46 @@ namespace SecurityIncidentTracker.Models
 
         // Brief description of what this type of incident is
         public string Description { get; set; } = "";
+    }
+
+    // This class represents the fields on the "Create Incident" form.
+    // It does not map directly 1:1 to a table, it is just a shape for user input.
+    public class IncidentCreateViewModel
+    {
+        // Short title or summary of what happened.
+        [Required(ErrorMessage = "Title is required.")]
+        [StringLength(200, ErrorMessage = "Title cannot be longer than 200 characters.")]
+        public string Title { get; set; } = "";
+
+        // Longer description explaining the incident.
+        [Required(ErrorMessage = "Description is required.")]
+        public string Description { get; set; } = "";
+
+        // How serious the incident is (Critical, High, Medium, Low).
+        [Required(ErrorMessage = "Severity is required.")]
+        public string Severity { get; set; } = "";
+
+        // Workflow status when creating the incident (usually "New").
+        [Required(ErrorMessage = "Status is required.")]
+        public string Status { get; set; } = "New";
+
+        // The selected incident type (e.g., Phishing, Malware).
+        [Required(ErrorMessage = "Incident type is required.")]
+        [Display(Name = "Incident Type")]
+        public int IncidentTypeID { get; set; }
+
+        // The responder (team member) assigned at creation time.
+        // If nobody is assigned yet, the incident will be counted as "New (Unassigned)".
+        [Display(Name = "Assigned To")]
+        public int? AssignedTo { get; set; }
+
+        // Optional IP address involved in the incident.
+        [Display(Name = "Source IP Address")]
+        public string? SourceIP { get; set; }
+
+        // Optional name of the affected system or application.
+        [Display(Name = "Affected System")]
+        public string? AffectedSystem { get; set; }
     }
 }
 
