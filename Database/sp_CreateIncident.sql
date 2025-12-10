@@ -5,7 +5,7 @@ CREATE PROCEDURE sp_CreateIncident
     @Severity NVARCHAR(20),
     @Status NVARCHAR(20),
     @IncidentTypeID INT,
-    @AssignedTo INT,
+    @AssignedTo INT = NULL,
     @SourceIP NVARCHAR(50) = NULL,
     @AffectedSystem NVARCHAR(200) = NULL
 AS
@@ -42,21 +42,24 @@ BEGIN
         -- Get the new IncidentID that was just created
         DECLARE @NewIncidentID INT = SCOPE_IDENTITY();
 
-        -- Optionally log an initial IncidentAction (audit trail)
-        INSERT INTO IncidentActions
-        (
-            IncidentID,
-            ResponderID,
-            ActionType,
-            ActionDescription
-        )
-        VALUES
-        (
-            @NewIncidentID,
-            @AssignedTo,
-            'Created',
-            'Incident created and assigned.'
-        );
+        -- Only log an "assigned" action if there is an assigned responder
+        IF @AssignedTo IS NOT NULL
+        BEGIN
+            INSERT INTO IncidentActions
+            (
+                IncidentID,
+                ResponderID,
+                ActionType,
+                ActionDescription
+            )
+            VALUES
+            (
+                @NewIncidentID,
+                @AssignedTo,
+                'Created',
+                'Incident created and assigned.'
+            );
+        END
 
         COMMIT TRANSACTION;
 
