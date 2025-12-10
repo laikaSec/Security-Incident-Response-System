@@ -189,5 +189,61 @@ namespace SecurityIncidentTracker.Services
 
             return types;
         }
+
+        // This method creates a new incident in the database using the sp_CreateIncident stored procedure.
+        public async Task<int?> CreateIncidentAsync(IncidentCreateViewModel model)
+        {
+            // This will hold the new IncidentID returned from the stored procedure.
+            int? newIncidentId = null;
+
+            // Use "using" so the connection is closed automatically when we're done.
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                // Tell SQL Server we want to execute the stored procedure we created earlier.
+                using (SqlCommand cmd = new SqlCommand("sp_CreateIncident", conn))
+                {
+                    // Important: specify that this is a stored procedure, not a plain text query.
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    // Add all the parameters expected by sp_CreateIncident.
+                    // The names here must match the parameter names in the SQL procedure.
+                    cmd.Parameters.AddWithValue("@Title", model.Title);
+                    cmd.Parameters.AddWithValue("@Description", model.Description);
+                    cmd.Parameters.AddWithValue("@Severity", model.Severity);
+                    cmd.Parameters.AddWithValue("@Status", model.Status);
+                    cmd.Parameters.AddWithValue("@IncidentTypeID", model.IncidentTypeID);
+
+                    // For optional fields, if the value is null or empty, we send DBNull.Value instead.
+                    cmd.Parameters.AddWithValue("@SourceIP",
+                        string.IsNullOrWhiteSpace(model.SourceIP) ? DBNull.Value : model.SourceIP);
+                    cmd.Parameters.AddWithValue("@AffectedSystem",
+                        string.IsNullOrWhiteSpace(model.AffectedSystem) ? DBNull.Value : model.AffectedSystem);
+
+                    // If AssignedTo has a value, send that ID. If not, send NULL to the database.
+                    cmd.Parameters.AddWithValue("@AssignedTo",
+                        model.AssignedTo.HasValue ? model.AssignedTo.Value : DBNull.Value);
+
+                    // Open the connection to the database.
+                    await conn.OpenAsync();
+
+                    // Execute the stored procedure and read the result.
+                    using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                    {
+                        // The procedure returns a single row with a column called NewIncidentID.
+                        if (await reader.ReadAsync())
+                        {
+                            // Try to read the new incident ID safely.
+                            if (!reader.IsDBNull(0))
+                            {
+                                newIncidentId = Convert.ToInt32(reader["NewIncidentID"]);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // If everything worked, this is the new ID; if something failed, it may be null.
+            return newIncidentId;
+        }
     }
 }
