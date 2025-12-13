@@ -1,0 +1,117 @@
+﻿@using SecurityIncidentTracker.Models
+@model IncidentCreateViewModel
+
+@{
+    ViewData["Title"] = "Create New Incident";
+
+    // Retrieve the dropdown lists we sent from the controller
+    var types = ViewBag.IncidentTypes as List<IncidentTypeViewModel>;
+    var responders = ViewBag.Responders as List<ResponderViewModel>;
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-plus-circle"></i> Log New Security Incident</h4>
+                </div>
+                <div class="card-body">
+
+                    @* The Form: Sends data to the "Create" action on "Incident" controller via POST *@
+                    <form asp-action="Create" asp-controller="Incident" method="post">
+
+                        @* Title *@
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label fw-bold"></label>
+                            <input asp-for="Title" class="form-control" placeholder="e.g., Suspicious login attempt" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        @* Description *@
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label fw-bold"></label>
+                            <textarea asp-for="Description" class="form-control" rows="4" placeholder="Describe what happened..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            @* Severity Dropdown *@
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Severity" class="form-label fw-bold"></label>
+                                <select asp-for="Severity" class="form-select">
+                                    <option value="">-- Select Severity --</option>
+                                    <option value="Critical">Critical</option>
+                                    <option value="High">High</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="Low">Low</option>
+                                </select>
+                                <span asp-validation-for="Severity" class="text-danger"></span>
+                            </div>
+
+                            @* Status Dropdown (Default New) *@
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Status" class="form-label fw-bold"></label>
+                                <select asp-for="Status" class="form-select">
+                                    <option value="New">New</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Resolved">Resolved</option>
+                                </select>
+                                <span asp-validation-for="Status" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            @* Incident Type Dropdown (from Database) *@
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="IncidentTypeID" class="form-label fw-bold"></label>
+                                <select asp-for="IncidentTypeID" class="form-select"
+                                        asp-items="@(new SelectList(types, "TypeID", "TypeName"))">
+                                    <option value="">-- Select Type --</option>
+                                </select>
+                                <span asp-validation-for="IncidentTypeID" class="text-danger"></span>
+                            </div>
+
+                            @* Assigned Responder Dropdown (Optional) *@
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="AssignedTo" class="form-label fw-bold"></label>
+                                <select asp-for="AssignedTo" class="form-select"
+                                        asp-items="@(new SelectList(responders, "ResponderID", "Name"))">
+                                    <option value="">-- Unassigned --</option>
+                                </select>
+                                <span asp-validation-for="AssignedTo" class="text-danger"></span>
+                                <small class="text-muted">Leave blank for "New (Unassigned)"</small>
+                            </div>
+                        </div>
+
+                        @* Optional Fields: Source IP & System *@
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="SourceIP" class="form-label fw-bold"></label>
+                                <input asp-for="SourceIP" class="form-control" placeholder="e.g., 192.168.1.50" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="AffectedSystem" class="form-label fw-bold"></label>
+                                <input asp-for="AffectedSystem" class="form-control" placeholder="e.g., HR-Laptop-01" />
+                            </div>
+                        </div>
+
+                        @* Submit Buttons *@
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a asp-controller="Home" asp-action="Index" class="btn btn-secondary me-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Log Incident</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @* Enable client-side validation so the form checks inputs before sending to server *@
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
