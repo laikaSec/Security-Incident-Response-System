@@ -1,6 +1,8 @@
 ﻿using Microsoft.Data.SqlClient;
 using SecurityIncidentTracker.Models;
 using System.Data;
+using Microsoft.AspNetCore.SignalR;
+using SecurityIncidentTracker.Hubs;
 
 namespace SecurityIncidentTracker.Services
 {
@@ -12,12 +14,18 @@ namespace SecurityIncidentTracker.Services
         // This variable holds the connection string (the address and login info for the database)
         private readonly string _connectionString;
 
-        // Constructor: when you create an IncidentService, pass in the connection string
-        public IncidentService(IConfiguration configuration)
+        // Add this field to hold the hub context
+        private readonly IHubContext<IncidentHub> _hubContext;
+
+        // Update constructor to accept IHubContext
+        public IncidentService(IConfiguration configuration, IHubContext<IncidentHub> hubContext)
         {
             // Get the connection string from appsettings.json
             _connectionString = configuration.GetConnectionString("DefaultConnection")
                 ?? throw new InvalidOperationException("Connection string not found");
+
+            // Store the hub context so we can use it later
+            _hubContext = hubContext;
         }
 
         // This method gets all active incidents (not closed) from the database
@@ -242,7 +250,13 @@ namespace SecurityIncidentTracker.Services
                 }
             }
 
-            // If everything worked, this is the new ID; if something failed, it may be null.
+            // If we successfully created an incident, notify all connected clients
+            if (newIncidentId.HasValue)
+            {
+                // "ReceiveIncidentUpdate" is the method name the JavaScript client will listen for.
+                await _hubContext.Clients.All.SendAsync("ReceiveIncidentUpdate");
+            }
+
             return newIncidentId;
         }
     }
