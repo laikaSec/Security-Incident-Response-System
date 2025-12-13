@@ -5,6 +5,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+// Add SignalR service
+builder.Services.AddSignalR();
+
+// Register our IncidentService
 builder.Services.AddScoped<IncidentService>();
 
 var app = builder.Build();
@@ -24,10 +28,12 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 
+// Map the default controller route
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
+// Map the SignalR hub to a URL path
+app.MapHub<SecurityIncidentTracker.Hubs.IncidentHub>("/incidentHub");
 
 app.Run();
