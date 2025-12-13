@@ -35,5 +35,39 @@ namespace SecurityIncidentTracker.Controllers
             // 4. Return the Create view
             return View();
         }
+
+        // POST: Incident/Create
+        // Handles the form submission.
+        [HttpPost]
+        [ValidateAntiForgeryToken] // Protects against Cross-Site Request Forgery attacks
+        public async Task<IActionResult> Create(IncidentCreateViewModel model)
+        {
+            // 1. Check if the form data is valid (based on [Required] attributes in the model)
+            if (ModelState.IsValid)
+            {
+                // 2. Call the service to save the incident to the database
+                var newId = await _incidentService.CreateIncidentAsync(model);
+
+                if (newId.HasValue)
+                {
+                    // 3. If successful, go back to the Dashboard
+                    // In the future, we could redirect to the "Details" page for this new incident
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    // If the database insert failed for some reason, show an error
+                    ModelState.AddModelError("", "Failed to create incident in database.");
+                }
+            }
+
+            // 4. If we got here, something failed (validation error or database error).
+            // We need to reload the dropdowns because HTTP is stateless (they don't persist automatically)
+            ViewBag.IncidentTypes = await _incidentService.GetIncidentTypesAsync();
+            ViewBag.Responders = await _incidentService.GetRespondersAsync();
+
+            // 5. Show the form again with the user's data and error messages
+            return View(model);
+        }
     }
 }
