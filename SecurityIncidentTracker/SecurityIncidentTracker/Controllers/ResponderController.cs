@@ -24,5 +24,41 @@ namespace SecurityIncidentTracker.Controllers
             var responders = await _incidentService.GetRespondersAsync();
             return View(responders);
         }
+
+        // GET: /Responder/Create
+        // Shows a blank form for adding a responder.
+        [HttpGet]
+        public IActionResult Create()
+        {
+            // Send an empty model to the view.
+            return View(new ResponderCreateViewModel());
+        }
+
+        // POST: /Responder/Create
+        // Handles form submission.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(ResponderCreateViewModel model)
+        {
+            // Validate user input using Data Annotations (e.g., [Required], [EmailAddress]).
+            if (!ModelState.IsValid)
+            {
+                // If invalid, show the form again with validation messages.
+                return View(model);
+            }
+
+            // Save the responder to the database.
+            var newResponderId = await _incidentService.CreateResponderAsync(model);
+
+            if (!newResponderId.HasValue)
+            {
+                // If something went wrong at the DB layer, show an error.
+                ModelState.AddModelError("", "Failed to create responder in database.");
+                return View(model);
+            }
+
+            // PRG pattern: redirect after POST to prevent duplicate form submissions on refresh. [web:256]
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
