@@ -259,5 +259,44 @@ namespace SecurityIncidentTracker.Services
 
             return newIncidentId;
         }
+
+        // This method creates a new responder in the database.
+        // Responders are the people incidents can be assigned to.
+        public async Task<int?> CreateResponderAsync(ResponderCreateViewModel model)
+        {
+            int? newResponderId = null;
+
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                using (SqlCommand cmd = new SqlCommand("sp_CreateResponder", conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    // Required field
+                    cmd.Parameters.AddWithValue("@Name", model.Name);
+
+                    // Optional fields: send NULL if empty
+                    cmd.Parameters.AddWithValue("@Email",
+                        string.IsNullOrWhiteSpace(model.Email) ? DBNull.Value : model.Email);
+
+                    cmd.Parameters.AddWithValue("@Role",
+                        string.IsNullOrWhiteSpace(model.Role) ? DBNull.Value : model.Role);
+
+                    cmd.Parameters.AddWithValue("@IsActive", model.IsActive);
+
+                    await conn.OpenAsync();
+
+                    using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync() && !reader.IsDBNull(0))
+                        {
+                            newResponderId = Convert.ToInt32(reader["NewResponderID"]);
+                        }
+                    }
+                }
+            }
+
+            return newResponderId;
+        }
     }
 }
