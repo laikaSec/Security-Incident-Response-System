@@ -72,7 +72,9 @@ CREATE TABLE IncidentActions (
 -- Insert sample incidents for testing
 INSERT INTO Incidents (Title, Description, Severity, Status, IncidentTypeID, AssignedTo, SourceIP, AffectedSystem)
 VALUES 
-('Multiple Failed Login Attempts', 'User account experienced 15 failed login attempts from unknown IP', 'High', 'New', 3, 1, '192.168.1.100', 'Web Server 01'),
+('Multiple Failed Login Attempts', 'User account experienced 15 failed login attempts from unknown IP', 'High', 'New', 3, NULL, '192.168.1.100', 'Web Server 01'),
 ('Suspicious Email Campaign', 'Phishing emails detected targeting finance department', 'Medium', 'In Progress', 1, 2, 'External', 'Email System'),
-('Malware Detection on Endpoint', 'Antivirus flagged suspicious executable on workstation', 'Critical', 'New', 2, 1, '10.0.0.45', 'Workstation-Finance-12');
+('Malware Detection on Endpoint', 'Antivirus flagged suspicious executable on workstation', 'Critical', 'In Progress', 2, 1, '10.0.0.45', 'Workstation-Finance-12');
+
+
 
