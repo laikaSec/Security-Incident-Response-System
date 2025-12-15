@@ -22,11 +22,10 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
-
-app.MapStaticAssets();
 
 // Map the default controller route
 app.MapControllerRoute(
